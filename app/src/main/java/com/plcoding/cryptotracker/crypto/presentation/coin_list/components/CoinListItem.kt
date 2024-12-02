@@ -71,7 +71,7 @@ fun CoinListItem(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                "$ ${coinUi.marketCapUsd.formatted}",
+                "$ ${coinUi.priceUsd.formatted}",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = contentColor
