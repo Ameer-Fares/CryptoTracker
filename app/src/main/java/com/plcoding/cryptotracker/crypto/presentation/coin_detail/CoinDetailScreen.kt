@@ -5,7 +5,10 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,16 +22,25 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastCbrt
+import com.plcoding.cryptotracker.R
 import com.plcoding.cryptotracker.core.presentation.util.getDrawableIdForCoin
+import com.plcoding.cryptotracker.crypto.presentation.coin_detail.components.InfoCard
 import com.plcoding.cryptotracker.crypto.presentation.coin_list.CoinListState
 import com.plcoding.cryptotracker.crypto.presentation.coin_list.components.previewCoin
+import com.plcoding.cryptotracker.crypto.presentation.models.toDisplayableNumberNumber
 import com.plcoding.cryptotracker.ui.theme.CryptoTrackerTheme
+import com.plcoding.cryptotracker.ui.theme.greenBackground
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun CoinDetailScreen(
     state: CoinListState,
@@ -68,13 +80,59 @@ fun CoinDetailScreen(
             )
 
             Text(
-                text = coin.name
+                text = coin.name,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center,
+                color = contentColor
             )
 
             Text(
-                text = coin.symbol
+                text = coin.symbol,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Light,
+                textAlign = TextAlign.Center,
+                color = contentColor
             )
 
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                InfoCard(
+                    title = stringResource(R.string.market_cap),
+                    formattedText = "$ ${coin.marketCapUsd.formatted}",
+                    icon = ImageVector.vectorResource(R.drawable.stock),
+                )
+                InfoCard(
+                    title = stringResource(R.string.price),
+                    formattedText = "$ ${coin.priceUsd.formatted}",
+                    icon = ImageVector.vectorResource(R.drawable.dollar),
+                )
+
+                val absoluteChangeFormatted =
+                    (coin.priceUsd.value * (coin.changePrice24Hr.value / 100))
+                        .toDisplayableNumberNumber()
+
+                val isPositive = coin.changePrice24Hr.value > 0.0
+                val priceContentColor = if (isPositive) {
+                    if (isSystemInDarkTheme()) Color.Green else greenBackground
+                } else {
+                    MaterialTheme.colorScheme.error
+                }
+
+
+                InfoCard(
+                    title = stringResource(R.string.change_last_24hr),
+                    formattedText = "$ ${absoluteChangeFormatted.formatted}",
+                    icon = if (isPositive) {
+                        ImageVector.vectorResource(id = R.drawable.trending)
+                    } else {
+                        ImageVector.vectorResource(id = R.drawable.trending_down)
+                    },
+                    contentColor = priceContentColor
+                )
+            }
         }
     }
 
